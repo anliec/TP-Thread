@@ -30,7 +30,7 @@ void print_prime_factors(uint64_t n)
 int main(void)
 {
     // your code goes  here: open the text file (e.g.  with fopen() ),
-	FILE* fichier = fopen("question2_test.txt", "r");
+	FILE* fichier = fopen("nombre premier.txt", "r");
     // then read each line (e.g. with fgets() ), turn it into a number
 	
 	uint64_t lecture = 0;
