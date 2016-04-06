@@ -62,7 +62,7 @@ int main(void)
 
 	for(i=0 ; i < NB_THREAD ; i++)
 	{
-		pthread_create(&idThread[pos], NULL, workEntry,&mutex);
+		pthread_create(&idThread[i], NULL, workEntry,&mutex);
 	}
 	for(i=0 ; i < NB_THREAD ; i++)
 	{
