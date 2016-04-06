@@ -68,11 +68,11 @@ int main(void)
 	uint64_t lecture = 0;
 	pthread_t idThread[NB_THREAD];
 	pthread_mutex_t mutex;
-	pthread_mutex_init(&mutex, NULL); // initialisation mutex
+	pthread_mutex_init(&mutex, NULL); // initialiser mutex
 
 	for(i=0 ; i < NB_THREAD ; i++)
 	{
-		pthread_create(&idThread[pos], NULL, workEntry,&mutex);
+		pthread_create(&idThread[i], NULL, workEntry,&mutex);
 	}
 	for(i=0 ; i < NB_THREAD ; i++)
 	{
