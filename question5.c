@@ -3,6 +3,8 @@
 #include <math.h>
 #include <pthread.h>
 
+#define FILE_OPEN_NAME "nombre premier.txt"
+
 void primeFactor(uint64_t n)
 {
 	uint64_t i,limit = sqrt(n);
@@ -10,20 +12,41 @@ void primeFactor(uint64_t n)
 	{
 		if(n%i == 0)
 		{
-			printf(" %ju",i);
+			//printf(" %ju",i);
 			primeFactor(n/i);
 			return;
 		}
 	}
-	printf(" %ju",n);
+	//printf(" %ju",n);
 }
 
 void print_prime_factors(uint64_t n)
 {
-	printf("%ju :",n);
+	//printf("%ju :",n);
 	primeFactor(n);
-	printf("\n");
+	//printf("\n");
 }
+
+void workEntry(pthread_mutex_t * mutex)
+{
+	FILE* fichier = fopen("nombre premier.txt", "r");
+	uint64_t lecture = 0;
+	int fin;
+	while (1)
+	{
+		pthread_mutex_lock(mutex); // vérouiller mutex
+		fin = fscanf(fichier, "%ju", &lecture);
+		pthread_mutex_unlock(mutex); // dévérouiller mutex
+		if(fin<=0)
+		{
+			break;
+		}
+		print_prime_factors(lecture);
+	}
+	fclose(fichier);
+}
+
+
 
 int main(void)
 {
@@ -31,42 +54,22 @@ int main(void)
 	int numberOfThread = 0;
 	int pos = 0;
 	const int NB_THREAD = 2;
-	
-	FILE* fichier = fopen("question3_test.txt", "r");
+
 	uint64_t lecture = 0;
 	pthread_t idThread[NB_THREAD];
-	
 	pthread_mutex_t mutex;
 	pthread_mutex_init(&mutex, NULL); // initialisation mutex
-	int fin;
 
-	while (fin > 0 )
+	for(i=0 ; i < NB_THREAD ; i++)
 	{
-		if (numberOfThread >= NB_THREAD )
-		{
-			pthread_join(idThread[pos], NULL);
-			numberOfThread--;
-		}
-		pthread_mutex_lock(&mutex); // vérouiller mutex
-		fin = fscanf(fichier, "%ju", &lecture);
-		pthread_mutex_unlock(&mutex); // dévérouiller mutex
-
-		if(fin<=0)
-		{
-			break;
-		}
-					
-		pthread_create(&idThread[pos], NULL, print_prime_factors,lecture);
-		numberOfThread++;
-		pos = (pos+1)%NB_THREAD;
+		pthread_create(&idThread[pos], NULL, workEntry,&mutex);
 	}
 	for(i=0 ; i < NB_THREAD ; i++)
 	{
 		pthread_join(idThread[i], NULL);
 	}
 	pthread_mutex_destroy(&mutex); // supprimer mutex
-	
-	fclose(fichier);
+
 	return 0;
 }
-    
+
