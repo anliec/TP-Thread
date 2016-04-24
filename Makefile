@@ -41,7 +41,10 @@ question5: question5.c
 	gcc -Wall -pthread -o question5 question5.c -lm
 	
 question6: question6.c
-	gcc -Wall -pthread -o question6 question6.c -lm  	
+	gcc -Wall -pthread -o question6 question6.c -lm  
+
+question10: question10.c
+	gcc -Wall -pthread -Ofast -o question10 question10.c -lm 	
 	
 %:%.c
 	gcc -Wall -pthread -o $<.run $< -lm
