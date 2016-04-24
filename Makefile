@@ -14,13 +14,13 @@ tiny.txt:
 	./generator.cs 20 20 0 > $@
 
 small.txt:
-	./generator.cs 20 32 50 > $@
+	./generator.cs 20 32 0 > $@
 
 medium.txt:
-	./generator.cs 20 50 50 > $@
+	./generator.cs 20 50 0 > $@
 
 large.txt:
-	./generator.cs 20 64 50 > $@
+	./generator.cs 30 64 0 > $@
 
 many.txt:
 	./generator.cs 1000 50 75 > $@
@@ -33,6 +33,15 @@ question1: question1.c
 
 question2: question2.c
 	gcc -Wall -pthread -o question2 question2.c -lm 
+
+question3: question3.c
+	gcc -Wall -pthread -o question3 question3.c -lm 
+
+question5: question5.c
+	gcc -Wall -pthread -o question5 question5.c -lm
+	
+question6: question6.c
+	gcc -Wall -pthread -o question6 question6.c -lm  	
 	
 %:%.c
 	gcc -Wall -pthread -o $<.run $< -lm

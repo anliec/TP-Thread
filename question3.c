@@ -31,7 +31,7 @@ int main(void)
 	int numberOfThread = 0;
 	int pos = 0;
 	const int NB_THREAD = 2;
-	FILE* fichier = fopen("nombre premier.txt", "r");
+	FILE* fichier = fopen("large.txt", "r");
 	uint64_t lecture = 0;
 	pthread_t idThread[NB_THREAD];
 	while (fscanf(fichier, "%ju", &lecture) > 0 )

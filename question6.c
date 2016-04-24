@@ -39,7 +39,7 @@ int get_prime_factors(uint64_t n, uint64_t* dest, uint64_t number)
 
 void workEntry(pthread_mutex_t * mutex)
 {
-	FILE* fichier = fopen("nombre premier.txt", "r");
+	FILE* fichier = fopen("large.txt", "r");
 	uint64_t lecture = 0;
 	int fin;
 	while (1)
