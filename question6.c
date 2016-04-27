@@ -5,6 +5,8 @@
 
 #define MAX_FACTORS 64
 
+FILE* fichier;
+
 void print_prime_factors(uint64_t n)
 {
 	uint64_t factors[MAX_FACTORS];
@@ -39,8 +41,7 @@ int get_prime_factors(uint64_t n, uint64_t* dest, uint64_t number)
 
 void workEntry(pthread_mutex_t * mutex)
 {
-	FILE* fichier = fopen("large.txt", "r");
-	uint64_t lecture = 0;
+    uint64_t lecture = 0;
 	int fin;
 	while (1)
 	{
@@ -52,8 +53,7 @@ void workEntry(pthread_mutex_t * mutex)
 			break;
 		}
 		print_prime_factors(lecture);
-	}
-	fclose(fichier);
+    }
 }
 
 
@@ -70,6 +70,8 @@ int main(void)
 	pthread_mutex_t mutex;
 	pthread_mutex_init(&mutex, NULL); // initialiser mutex
 
+    fichier = fopen("tricky.txt", "r");
+
 	for(i=0 ; i < NB_THREAD ; i++)
 	{
 		pthread_create(&idThread[i], NULL, workEntry,&mutex);
@@ -79,6 +81,8 @@ int main(void)
 		pthread_join(idThread[i], NULL);
 	}
 	pthread_mutex_destroy(&mutex); // supprimer mutex
+
+    fclose(fichier);
 
 	return 0;
 }

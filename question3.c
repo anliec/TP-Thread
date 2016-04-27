@@ -10,19 +10,19 @@ void primeFactor(uint64_t n)
 	{
 		if(n%i == 0)
 		{
-			//printf(" %ju",i);
+            printf(" %ju",i);
 			primeFactor(n/i);
 			return;
 		}
 	}
-	//printf(" %ju",n);
+    printf(" %ju",n);
 }
 
 void print_prime_factors(uint64_t n)
 {
-	//printf("%ju :",n);
+    printf("%ju :",n);
 	primeFactor(n);
-	//printf("\n");
+    printf("\n");
 }
 
 int main(void)
@@ -31,7 +31,7 @@ int main(void)
 	int numberOfThread = 0;
 	int pos = 0;
 	const int NB_THREAD = 2;
-	FILE* fichier = fopen("large.txt", "r");
+    FILE* fichier = fopen("tricky.txt", "r");
 	uint64_t lecture = 0;
 	pthread_t idThread[NB_THREAD];
 	while (fscanf(fichier, "%ju", &lecture) > 0 )

@@ -7,6 +7,8 @@
 #define MUTEX_FICHIER 0
 #define MUTEX_ECRAN 1
 
+FILE* fichier;
+
 void print_prime_factors(uint64_t n, pthread_mutex_t * mutexEcran)
 {
 	uint64_t factors[MAX_FACTORS];
@@ -43,7 +45,7 @@ int get_prime_factors(uint64_t n, uint64_t* dest, uint64_t number)
 
 void workEntry(pthread_mutex_t * mutex)
 {
-	FILE* fichier = fopen("nombre premier.txt", "r");
+
 	uint64_t lecture = 0;
 	int fin;
 	while (1)
@@ -57,7 +59,6 @@ void workEntry(pthread_mutex_t * mutex)
 		}
 		print_prime_factors(lecture, &mutex[MUTEX_ECRAN]);
 	}
-	fclose(fichier);
 }
 
 
@@ -73,6 +74,7 @@ int main(void)
 	pthread_mutex_init(&mutex[MUTEX_FICHIER], NULL); // initialiser mutexFichier
 	pthread_mutex_init(&mutex[MUTEX_ECRAN], NULL);// initialiser mutexEcran
 
+    fichier = fopen("nombre premier.txt", "r");
 
 	for(i=0 ; i < NB_THREAD ; i++)
 	{
@@ -85,6 +87,7 @@ int main(void)
 	pthread_mutex_destroy(&mutex[MUTEX_FICHIER]); // supprimer mutexFichier
 	pthread_mutex_destroy(&mutex[MUTEX_ECRAN]); // supprimer mutexEcran
 
+    fclose(fichier);
 
 	return 0;
 }

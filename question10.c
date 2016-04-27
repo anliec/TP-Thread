@@ -15,7 +15,7 @@ pthread_mutex_t mutex[4];
 #define LONGEUR 10000
 #define PROFONDEUR 64
 
-#define NB_THREAD 4
+#define NB_THREAD 5
 
 ///Htab:
 //HT_LONGUEUR est un nombre premier (c'est mieux)
@@ -32,7 +32,7 @@ struct keyValue
 
 struct keyValue hashTable[HT_LONGUEUR][HT_PROFONDEUR];
 
-#define FILE_READ "input.txt"
+#define FILE_READ "race2.txt"
 
 uint64_t memoriseResultats[LONGEUR][PROFONDEUR];
 int Longeur_MR = 0;
@@ -40,11 +40,11 @@ int Longeur_MR = 0;
 FILE* fichier;
 uint64_t threadWork[NB_THREAD][2];
 
-int get_prime_factors(uint64_t courantDestIndex, uint64_t* dest, uint64_t numberToFactorise, uint64_t beginLoopWith);
+int get_prime_factors(uint64_t courantDestIndex, uint64_t *dest, uint64_t numberToFactorise, uint64_t beginLoopWith);
 
 int getHashValue(uint64_t v)
 {
-	return (v*HT_A+HT_B)%HT_LONGUEUR;
+    return ((v)*HT_A+HT_B)%HT_LONGUEUR;
 }
 
 int getIndexOf(uint64_t v)
@@ -52,7 +52,7 @@ int getIndexOf(uint64_t v)
 	int hashPos = getHashValue(v);
 	for(unsigned i=0 ; i<HT_PROFONDEUR ; i++)
 	{
-		if(hashTable[hashPos][i].key == v)
+        if(hashTable[hashPos][i].key == v)
 		{
 			return hashTable[hashPos][i].value;
 		}
@@ -90,54 +90,60 @@ void addKeyValue(uint64_t key, int value)
         else */if(hashTable[hashPos][i].value == -1)
 		{
 			hashTable[hashPos][i].value = value;
-			hashTable[hashPos][i].key = key;
+            hashTable[hashPos][i].key = key;
 			pthread_mutex_unlock(&mutex[MUTEX_HT]);
 			return;
 		}
 	}
 	pthread_mutex_unlock(&mutex[MUTEX_HT]);
-	printf("\n--------------------\nhash table overflow !!!\n-------------------\n");
+    //printf("\n--------------------\nhash table overflow !!!\n-------------------\n");
 }
 
 
 void print_prime_factors(uint64_t n, int threadNumber)
 {
 	uint64_t factors[MAX_FACTORS];
+    uint64_t deux = 2;
 
 	unsigned int j,destSize;
 
-	destSize=get_prime_factors(0,factors, n, 2);
+    destSize=get_prime_factors(0,factors, n, deux);
 
 	pthread_mutex_lock(&mutex[MUTEX_ECRAN]); // vérouiller mutexEcran
 	for(unsigned i=0 ; i<threadWork[threadNumber][1] ; i++)
 	{
-		printf("%ju: ",n);
+        printf("%ju: ",n);
 		for(j=0; j<=destSize; j++)
 		{
 			printf("%ju ",factors[j]);
 		}
-		printf("\n");
+        printf("\n");
 	}
-	pthread_mutex_unlock(&mutex[MUTEX_ECRAN]); // dévérouiller mutexEcran
+    pthread_mutex_unlock(&mutex[MUTEX_ECRAN]); // dévérouiller mutexEcran
+
 }
 
-int addFactor(uint64_t courantDestIndex, uint64_t* dest, uint64_t numberToFactorise, uint64_t factor, int posMemorisation)
+int addFactor(uint64_t courantDestIndex, uint64_t * dest, uint64_t numberToFactorise, uint64_t factor, int posMemorisation)
 {
-	dest[courantDestIndex] = factor;
-	uint64_t factorised = numberToFactorise/factor;
-	int profondeur = get_prime_factors(courantDestIndex+1, dest, factorised, factor);
+    dest[courantDestIndex] = factor;
+    uint64_t factorised = (numberToFactorise) / (factor);
+
+    int profondeur = get_prime_factors(courantDestIndex+1, dest, factorised, factor);
 
 	for(int j=courantDestIndex ; j<=profondeur ; j++)
 	{
 		memoriseResultats[posMemorisation][j-courantDestIndex+1]=dest[j];
 	}
 
-
 	return profondeur;
 }
 
-int get_prime_factors(uint64_t courantDestIndex, uint64_t* dest, uint64_t numberToFactorise, uint64_t beginLoopWith)
+int get_prime_factors(uint64_t courantDestIndex, uint64_t * dest, uint64_t numberToFactorise, uint64_t beginLoopWith)
 {
+    if(numberToFactorise == 1)
+    {
+        return courantDestIndex-1;
+    }
 	int found = getIndexOf(numberToFactorise);
 	if(found != -1)
 	{
@@ -155,45 +161,55 @@ int get_prime_factors(uint64_t courantDestIndex, uint64_t* dest, uint64_t number
 		return courantDestIndex-1;
 	}
 	else
-	{
+    {
 		//get the pos for memorising the result
 		pthread_mutex_lock(&mutex[MUTEX_L_MR]);
 		int posMemorisation = Longeur_MR;
 		Longeur_MR++;
 		pthread_mutex_unlock(&mutex[MUTEX_L_MR]);
 		//add the pos to hash tab
-		addKeyValue(numberToFactorise,posMemorisation);
+        addKeyValue(numberToFactorise,posMemorisation);
 		//store the value on MR
 		//memoriseResultats[posMemorisation][0]=numberToFactorise; //useless
 		//signal that the value is beeing computed
 		memoriseResultats[posMemorisation][1]=1;
 
-		if(beginLoopWith == 2)
+        if(beginLoopWith == 2)
 		{
-			if(numberToFactorise%2 == 0)
-			{
-				return addFactor(courantDestIndex,dest,numberToFactorise,2,posMemorisation);
-			}
-			beginLoopWith++;
-		}
-		/*if(beginLoopWith == 3)
-        {
-            if(numberToFactorise%3 == 0)
+            if((numberToFactorise)%2 == 0)
             {
-                return addFactor(courantDestIndex,dest,numberToFactorise,3);
+                return addFactor(courantDestIndex,dest,numberToFactorise,2,posMemorisation);
+			}
+            (beginLoopWith)++;
+		}
+        if(beginLoopWith == 3)
+        {
+            if((numberToFactorise)%3 == 0)
+            {
+                return addFactor(courantDestIndex,dest,numberToFactorise,3,posMemorisation);
             }
-            beginLoopWith+=2;
-        }*/
-		uint64_t i,limit = sqrt(numberToFactorise);
-		for(i=beginLoopWith ; i<=limit ; i+=2)
+            (beginLoopWith)+=2;
+        }
+        unsigned inc;
+        if((beginLoopWith)%6 == 1)
+        {
+            inc = 4;
+        }
+        else if((beginLoopWith)%6 == 5)
+        {
+            inc = 2;
+        }
+
+        uint64_t i,limit = sqrt(numberToFactorise);
+        for(i=(beginLoopWith) ; i<=limit ; i+=inc , inc=6-inc)
 		{
-			if(numberToFactorise%i == 0)
+            if((numberToFactorise)%i == 0)
 			{
-				return addFactor(courantDestIndex,dest,numberToFactorise,i,posMemorisation);
+                return addFactor(courantDestIndex,dest,numberToFactorise,i,posMemorisation);
 			}
 		}
-		dest[courantDestIndex] = numberToFactorise;
-		memoriseResultats[posMemorisation][1]=numberToFactorise;
+        dest[courantDestIndex] = numberToFactorise;
+        memoriseResultats[posMemorisation][1]= numberToFactorise;
 	}
 	return courantDestIndex;
 }
@@ -201,9 +217,10 @@ int get_prime_factors(uint64_t courantDestIndex, uint64_t* dest, uint64_t number
 void workEntry(int threadNumber)
 {
 	uint64_t lecture = 0;
-	int fin;
+    int fin, compute;
 	while (1)
 	{
+        compute=1;
 		pthread_mutex_lock(&mutex[MUTEX_FICHIER]); // vérouiller mutexFichier
 		fin = fscanf(fichier, "%ju", &lecture);
 		pthread_mutex_unlock(&mutex[MUTEX_FICHIER]); // dévérouiller mutexFichier
@@ -216,12 +233,16 @@ void workEntry(int threadNumber)
 			if(threadWork[i][0]==lecture && i!=threadNumber)
 			{
 				threadWork[i][1]++;
-				continue;
+                compute=0;
+                break;
 			}
 		}
-		threadWork[threadNumber][0]=lecture;
-		threadWork[threadNumber][1]=1;
-		print_prime_factors(lecture, threadNumber);
+        if(compute)
+        {
+            threadWork[threadNumber][0]=lecture;
+            threadWork[threadNumber][1]=1;
+            print_prime_factors(lecture, threadNumber);
+        }
 	}
 }
 

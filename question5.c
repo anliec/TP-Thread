@@ -5,6 +5,8 @@
 
 #define FILE_OPEN_NAME "nombre premier.txt"
 
+FILE* fichier;
+
 void primeFactor(uint64_t n)
 {
 	uint64_t i,limit = sqrt(n);
@@ -12,24 +14,23 @@ void primeFactor(uint64_t n)
 	{
 		if(n%i == 0)
 		{
-			//printf(" %ju",i);
+            printf(" %ju",i);
 			primeFactor(n/i);
 			return;
 		}
 	}
-	//printf(" %ju",n);
+    printf(" %ju",n);
 }
 
 void print_prime_factors(uint64_t n)
 {
-	//printf("%ju :",n);
+    printf("%ju :",n);
 	primeFactor(n);
-	//printf("\n");
+    printf("\n");
 }
 
 void workEntry(pthread_mutex_t * mutex)
 {
-	FILE* fichier = fopen("large.txt", "r");
 	uint64_t lecture = 0;
 	int fin;
 	while (1)
@@ -43,7 +44,7 @@ void workEntry(pthread_mutex_t * mutex)
 		}
 		print_prime_factors(lecture);
 	}
-	fclose(fichier);
+
 }
 
 
@@ -60,6 +61,8 @@ int main(void)
 	pthread_mutex_t mutex;
 	pthread_mutex_init(&mutex, NULL); // initialisation mutex
 
+    fichier = fopen("tricky.txt", "r");
+
 	for(i=0 ; i < NB_THREAD ; i++)
 	{
 		pthread_create(&idThread[i], NULL, workEntry,&mutex);
@@ -68,6 +71,9 @@ int main(void)
 	{
 		pthread_join(idThread[i], NULL);
 	}
+
+    fclose(fichier);
+
 	pthread_mutex_destroy(&mutex); // supprimer mutex
 
 	return 0;
